@@ -1,4 +1,4 @@
-import Game, { withGameUpdates } from './Intelligent';
+import Game, { withGameUpdates } from './BoundedLife';
 
 export { Game, withGameUpdates };
 export default Game;

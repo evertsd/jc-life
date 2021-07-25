@@ -1,25 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import RawCanvas from './Canvas';
+import Game, { withGameUpdates } from './Life';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+const Canvas = withGameUpdates(RawCanvas);
+
+const App = () => (
+    <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            backgroundColor: '#4868F2',
+            padding: '4rem 0',
+        }}>
+        <Game>
+            <Canvas />
+        </Game>
     </div>
-  );
-}
+);
 
 export default App;

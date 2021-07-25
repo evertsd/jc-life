@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
 const drawRect = ctx => ({ color, position, size }) => {
     ctx.fillStyle = color;
@@ -6,7 +7,6 @@ const drawRect = ctx => ({ color, position, size }) => {
 }
 
 const clearRect = ctx => ({ position, size }) => {
-    console.info('Canvas.clearRect, position, size', position, size);
     ctx.clearRect(position.x, position.y, size.width, size.height);
 }
 
@@ -22,29 +22,30 @@ const useCanvasUpdates = updates => {
         }
 
         (updates.clear || []).forEach(clearRect(ctx));
-
         (updates.draw || []).forEach(drawRect(ctx));
     });
 
     return cel;
 };
 
-const Canvas = ({ updates }) => {
+const Canvas = ({ height, width, updates }) => {
     const cel = useCanvasUpdates(updates);
 
     return (
         <canvas
             ref={cel}
             type="text"
-            height="468"
-            width="144"
-            fillStyle="#FFF"
+            height={height}
+            width={width}
+            fillstyle="#FFF"
             style={{ border: '1px solid #EFEFEF', backgroundColor: '#F6F6F6' }}
         />
     );
 };
 
 Canvas.defaultProps = {
+    height: PropTypes.number,
+    width: PropTypes.number,
     updates: {
         clear: [],
         draw: [],

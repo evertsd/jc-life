@@ -1,8 +1,9 @@
-import Colors from '../colors';
+import { GREYS} from '../colors';
 
-const BOARD_EDGE = 20;
+export const GAME_BITS = 9;
+export const BOARD_EDGE = Math.pow(2, 5);
 export const BOARD = { height: BOARD_EDGE, width: BOARD_EDGE };
-export const PIECE_COLORS = [Colors.SILVER, Colors.RED, Colors.GREEN, Colors.GOLD];
+export const PIECE_COLORS = Object.values(GREYS);
 
 export const MS_PER_ITERATION = 250;
 // DO NOT EXCEED (32768 - BOARD_EDGE).
