@@ -49,8 +49,8 @@ const findLocalMaxima = function (heuristic, opts) {
     return artifact;
   },  heuristic.createEmptyArtifact());
 
-  console.info('findLocalMaxima, maxima, samples', maxima, artifacts);
-  window.localMaxima = maxima;
+  console.info('findLocalMaxima, maxima, samples', maxima.score);
+  window.localMaxima = { ...opts, ...maxima };
   return maxima.initialBoard;
 };
 

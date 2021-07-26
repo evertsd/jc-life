@@ -1,8 +1,8 @@
 import React from 'react';
-import * as heuristic from './heuristics/growth';
-import { buildInitialState } from './util';
+import { buildInitialState, process } from './util';
 import { GAME_BITS, MS_PER_ITERATION } from '../constants';
-import { clearBoard, getMaxPosition, process } from '../../Game/utils';
+import { Button } from '../../Components';
+import { clearBoard, getMaxPosition } from '../../Game/utils';
 
 /*
 interface GameState {
@@ -16,7 +16,8 @@ const GAME_STATUS = {
   STOPPED: 0,
   STARTING: 1,
   RUNNING: 2,
-  TEARDOWN: 3
+  PAUSED: 3,
+  TEARDOWN: 4
 };
 
 const initialContextValue = (() => ({
@@ -52,15 +53,20 @@ class GameStateHandler extends React.Component {
          if (Object.keys(pieces).length === 0 || (
            updates.clear.length === 0 &&
            updates.draw.length === 0
-        ))
+         ))
           this.stop();
 
-         this.setState({ pieces, updates });
+         const newState = { pieces, updates };
+         this.setState(newState);
+
+         return newState;
        } catch (e) {
          console.error(e);
          console.log('Stopping execution');
          this.stop();
        }
+
+       return {};
      }
 
      start() {
@@ -94,15 +100,15 @@ class GameStateHandler extends React.Component {
        }
        else if (this.state.status === GAME_STATUS.STOPPED) {
          this.setState({
-           ...buildInitialState(heuristic, opts),
+           ...buildInitialState(opts),
            status: GAME_STATUS.STARTING
          });
        }
        else if (this.state.status === GAME_STATUS.STARTING) {
          this.setState({
-           status: GAME_STATUS.RUNNING,
+           status: GAME_STATUS.PAUSED,
            isRestarting: false
-         }, this.start.bind(this));
+         });
        }
      }
 
@@ -136,10 +142,34 @@ class GameStateHandler extends React.Component {
        this.setState({ isStopping: true, status: GAME_STATUS.TEARDOWN });
      }
 
+     onPause() {
+       this.stop();
+       console.info('board', this.state.pieces);
+       this.setState({ status: GAME_STATUS.PAUSED });
+     }
+
+     onIterate() {
+       const newState = this.update();
+       console.info('board', newState.pieces);
+     }
+
+     onStart() {
+       this.start();
+       this.setState({ status: GAME_STATUS.RUNNING });
+     }
+
      render = () => (
        <React.Fragment>
-         <div>
-           <button onClick={this.onRestart.bind(this)}>Restart</button>
+         <div className="mr2">
+           <Button onClick={this.onRestart.bind(this)}>Restart</Button>
+           {this.state.status === GAME_STATUS.PAUSED ? (
+             <React.Fragment>
+               <Button onClick={this.onIterate.bind(this)}>Next</Button>
+               <Button onClick={this.onStart.bind(this)}>Start</Button>
+             </React.Fragment>
+           ) : (
+             <Button onClick={this.onPause.bind(this)}>Pause</Button>
+           )}
          </div>
          <GameContext.Provider value={{ ...initialContextValue, updates: this.state.updates }}>
              {this.props.children}

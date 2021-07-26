@@ -1,4 +1,5 @@
 import React from 'react';
+import 'tachyons';
 import RawCanvas from './Canvas';
 import Game, { withGameUpdates } from './Life';
 
