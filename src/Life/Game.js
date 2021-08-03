@@ -1,8 +1,7 @@
 import React from 'react';
-import * as heuristic from './heuristics/growth';
-import { buildInitialState } from './util';
-import { GAME_BITS, MS_PER_ITERATION } from '../constants';
-import { clearBoard, getMaxPosition, process } from '../../Game/utils';
+import { GAME_BITS, MS_PER_ITERATION } from './constants';
+import { clearBoard, getMaxPosition, process } from './util';
+import { Button } from '../Components';
 
 /*
 interface GameState {
@@ -16,7 +15,8 @@ const GAME_STATUS = {
   STOPPED: 0,
   STARTING: 1,
   RUNNING: 2,
-  TEARDOWN: 3
+  PAUSED: 3,
+  TEARDOWN: 4
 };
 
 const initialContextValue = (() => ({
@@ -24,12 +24,6 @@ const initialContextValue = (() => ({
   width: getMaxPosition(GAME_BITS),
   updates: { clear: [], draw: [] }
 }))();
-
-const opts = {
-  bits: GAME_BITS,
-  sampleSize: 128,
-  executionIterations: 32
-};
 
 const GameContext = React.createContext(initialContextValue);
 
@@ -39,28 +33,34 @@ class GameStateHandler extends React.Component {
 
          this.gameLoop = undefined;
          this.state = {
-           status: GAME_STATUS.STOPPED,
            isRestarting: true,
-           isStopping: false
+           isStopping: false,
+           iterations: 0,
+           status: GAME_STATUS.STOPPED,
          };
      }
 
      update() {
        try {
-         const { pieces, ...updates } = process(this.state.pieces, this.state.opts);
+         const { pieces, ...updates } = process(this.state.pieces, this.props.opts);
 
          if (Object.keys(pieces).length === 0 || (
            updates.clear.length === 0 &&
            updates.draw.length === 0
-        ))
+         ))
           this.stop();
 
-         this.setState({ pieces, updates });
+         const newState = { pieces, updates, iterations: this.state.iterations + 1 };
+         this.setState(newState);
+
+         return newState;
        } catch (e) {
          console.error(e);
          console.log('Stopping execution');
          this.stop();
        }
+
+       return {};
      }
 
      start() {
@@ -94,15 +94,16 @@ class GameStateHandler extends React.Component {
        }
        else if (this.state.status === GAME_STATUS.STOPPED) {
          this.setState({
-           ...buildInitialState(heuristic, opts),
+           ...this.props.buildInitialState(this.props.opts),
+           iterations: 0,
            status: GAME_STATUS.STARTING
          });
        }
        else if (this.state.status === GAME_STATUS.STARTING) {
          this.setState({
-           status: GAME_STATUS.RUNNING,
+           status: GAME_STATUS.PAUSED,
            isRestarting: false
-         }, this.start.bind(this));
+         });
        }
      }
 
@@ -112,6 +113,7 @@ class GameStateHandler extends React.Component {
 
          this.setState({
            isStopping: false,
+           iterations: 0,
            pieces,
            status: GAME_STATUS.STOPPED,
            updates
@@ -136,10 +138,37 @@ class GameStateHandler extends React.Component {
        this.setState({ isStopping: true, status: GAME_STATUS.TEARDOWN });
      }
 
+     onPause() {
+       this.stop();
+       console.info('board', this.state.pieces);
+       this.setState({ status: GAME_STATUS.PAUSED });
+     }
+
+     onIterate() {
+       const newState = this.update();
+       console.info('board', newState.pieces);
+     }
+
+     onStart() {
+       this.start();
+       this.setState({ status: GAME_STATUS.RUNNING });
+     }
+
      render = () => (
        <React.Fragment>
-         <div>
-           <button onClick={this.onRestart.bind(this)}>Restart</button>
+         <div className="ph3 bg-white">
+           <h2>Iteration: {this.state.iterations}</h2>
+         </div>
+         <div className="ph3 pb3 bg-white bb">
+           <Button onClick={this.onRestart.bind(this)}>Restart</Button>
+           {this.state.status === GAME_STATUS.PAUSED ? (
+             <React.Fragment>
+               <Button className="mh2" onClick={this.onIterate.bind(this)}>Next</Button>
+               <Button onClick={this.onStart.bind(this)}>Start</Button>
+             </React.Fragment>
+           ) : (
+             <Button className="mh2" onClick={this.onPause.bind(this)}>Pause</Button>
+           )}
          </div>
          <GameContext.Provider value={{ ...initialContextValue, updates: this.state.updates }}>
              {this.props.children}

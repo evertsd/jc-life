@@ -1,12 +1,12 @@
 import { BOARD_EDGE } from '../constants';
 import * as util from '../../Game/utils';
 import * as arrangement from '../../arrangement/immanentLineClear';
-import results from '../../results/growth/20210724/1455_508.json';
+import results from '../../results/greedy/20210802_643.json';
 
 const isFileTest = false;
 const getTestKeys = function (bits) {
   if (isFileTest)
-    return results.keys;
+    return results.initialBoard;
 
   const dummyPiece = util.createPiece(0, bits, true)
   const offset = (util.getMaxPosition(bits) - BOARD_EDGE) / 2;
@@ -30,5 +30,3 @@ export const buildInitialState = function (opts) {
     opts
   };
 }
-
-export const process = util.process;

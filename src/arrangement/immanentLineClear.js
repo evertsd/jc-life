@@ -21,7 +21,7 @@ const rotate = function (positions) {
 // (-19, 21) LONG
 // (-20, 22) COOL ARRANGEMENT NON OSCILLATING
 // (-26, 28) Interesting stable life
-export const create = function (bits, size, xOffset, yOffset) {
+export const createComplex = function (bits, size, xOffset, yOffset) {
   const calculateX = (xo) =>
     (x) => x * size.width + xOffset + xo;
 
@@ -54,3 +54,31 @@ export const create = function (bits, size, xOffset, yOffset) {
 
   return [...top, ...left, ...bottom, ...right];
 }
+
+export const createOffset = function (bits, size, xOffset, yOffset) {
+  const calculateX = (xo) =>
+    (x) => x * size.width + xOffset + xo;
+
+  const calculateY = (yo) =>
+    (y) => y * size.height + yOffset + yo;
+
+  const topPositions = positions.map(position =>
+    transpose(position, calculateX(0), calculateY(-2 * size.height))
+  );
+
+  const top = topPositions.map(position =>
+    getKey(position, bits)
+  );
+
+  const bottomPositions = invert(positions).map(position =>
+    transpose(position, calculateX(1 * size.width), calculateY(2 * size.height))
+  );
+
+  const bottom = bottomPositions.map(position =>
+    getKey(position, bits)
+  );
+
+  return [...top, ...bottom];
+};
+
+export const create = createOffset;

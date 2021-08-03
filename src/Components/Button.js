@@ -14,11 +14,11 @@ const buttonClassNames = [
   'ba border-box'
 ].join(' ');
 
-export const Button = ({ children, onClick }) => (
+export const Button = ({ children, className, onClick }) => (
   <a
     href="#"
     onClick={onClick}
-    className={buttonClassNames}>
+    className={className ? [buttonClassNames, className].join(' ') : buttonClassNames}>
     {children}
   </a>
 )

@@ -1,37 +1,9 @@
-import { BOARD_EDGE, PIECE_COLORS } from './constants';
+import { PIECE_COLORS } from './constants';
 
-export const isRandomlyAlive = function () {
-  return (Math.random() * 8) < 3;
+export const isRandomlyAlive = function (threshold) {
+  return Math.random() < threshold;
 };
 
-export const buildInitialState = function (bits) {
-  const pieces = {};
-  const loopStart = ((Math.pow(2, bits) - 1) - BOARD_EDGE) / 2;
-  const loopEnd = loopStart + BOARD_EDGE;
-  const dummyPiece = createPiece(0, bits);
-
-  let i = loopStart, j = loopStart;
-
-  while (i < loopEnd) {
-    while (j < loopEnd) {
-      if (isRandomlyAlive()) {
-        const key = getKey({ x: i, y: j }, bits);
-
-        pieces[key] = createPiece(key, bits, true);
-      }
-
-      j += dummyPiece.size.height;
-    }
-    i += dummyPiece.size.width;
-    j = loopStart;
-  }
-
-  return {
-    pieces,
-    updates: { clear: [], draw: Object.values(pieces) },
-    opts: { bits }
-  }
-}
 export const getBits = (maxPosition) =>
   Math.ceil(Math.log2(maxPosition + 1));
 
